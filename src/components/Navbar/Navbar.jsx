@@ -9,7 +9,7 @@ const Navbar = () => {
       <div className="navbar-container">
         {/* Logo on left */}
         <Link to="/" className="navbar-logo">
-          LOGO
+          Sound Sketch
         </Link>
 
         {/* Icons on right */}
