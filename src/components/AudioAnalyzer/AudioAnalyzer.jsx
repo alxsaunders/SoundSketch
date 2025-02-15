@@ -249,6 +249,7 @@ const AudioAnalyzer = () => {
                   <ul className="list-disc pl-5">
                     {debugInfo.topNotes.map(([note, count], i) => (
                       <li key={i}>{note}: {count} occurrences</li>
+
                     ))}
                   </ul>
                 </div>
