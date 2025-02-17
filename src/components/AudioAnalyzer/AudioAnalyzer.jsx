@@ -248,8 +248,7 @@ const AudioAnalyzer = () => {
                   <p className="font-semibold">Top 5 detected notes:</p>
                   <ul className="list-disc pl-5">
                     {debugInfo.topNotes.map(([note, count], i) => (
-                      <li key={i}>{note}: {count} occurrences</li>
-                      
+                      <li key={i}>{note}: {count} occurrences</li>        
                     ))}
                   </ul>
                 </div>
