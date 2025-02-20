@@ -1,7 +1,7 @@
 import React from 'react';
 import './Home.css';
 import Youtube2Mp3 from '@/components/Youtube2Mp3/Youtube2Mp3.jsx';
-
+import SongKeyAnalyzer from '@/components/SongKeyAnalyzer';
 
 const Home = () => {
   return (
@@ -9,6 +9,9 @@ const Home = () => {
       <div>
       <h1>Welcome to the YouTube to MP3 Converter</h1>
       <Youtube2Mp3 />
+      <div className="container mx-auto">
+        <SongKeyAnalyzer />
+      </div>
     </div>
     </div>
   );
