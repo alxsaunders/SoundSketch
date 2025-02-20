@@ -85,7 +85,7 @@ const AudioAnalyzer = () => {
       };
   
       let scaleType = "Major"; // Assume Major by default
-  
+
       const isMinor = avgFrequency % 2 !== 0; // Temporary heuristic; replace with a better method
   
       if (isMinor) {
