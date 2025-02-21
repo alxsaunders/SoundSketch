@@ -1,26 +1,52 @@
-import React, { useState } from "react";
-import Youtube2Mp3 from "@/components/Youtube2Mp3/Youtube2Mp3";
-import AudioAnalyzer from "@/components/AudioAnalyzer/AudioAnalyzer";
+
+import React from 'react';
+import Youtube2Mp3 from '@/components/Youtube2Mp3/Youtube2Mp3.jsx';
+import SongKeyAnalyzer from '@/components/SongKeyAnalyzer';
+import RhymeFinder from '@/components/RhymeFinder/RhymeFinder'
+
+// Add inline styles for guaranteed column layout
+const columnContainerStyle = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(3, 1fr)',
+  gap: '20px',
+  width: '100%'
+};
+
+const columnStyle = {
+  minWidth: 0 // Ensures columns don't overflow
+};
 
 const Home = () => {
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
-          YouTube to MP3 Converter & Audio Analyzer
-        </h1>
-
-        {/* YouTube to MP3 Converter */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700">
-            Convert YouTube to MP3
+    <div>
+      <h1 style={{ marginBottom: '20px', fontSize: '24px', fontWeight: 'bold' }}>
+        Music Tools Hub
+      </h1>
+      
+      <div style={columnContainerStyle}>
+        {/* Column 1: YouTube to MP3 */}
+        <div style={columnStyle}>
+          <h2 style={{ marginBottom: '10px', fontSize: '18px', fontWeight: 'bold' }}>
+            YouTube to MP3 Converter
           </h2>
           <Youtube2Mp3 />
         </div>
-
-        <div className="container mx-auto p-4">
-      <AudioAnalyzer />
-    </div>
+        
+        {/* Column 2: Song Key Analyzer */}
+        <div style={columnStyle}>
+          <h2 style={{ marginBottom: '10px', fontSize: '18px', fontWeight: 'bold' }}>
+            Song Key Analyzer
+          </h2>
+          <SongKeyAnalyzer />
+        </div>
+        
+        {/* Column 3: Your New Component */}
+        <div style={columnStyle}>
+          <h2 style={{ marginBottom: '10px', fontSize: '18px', fontWeight: 'bold' }}>
+            New Component
+          </h2>
+         <RhymeFinder />
+        </div>
       </div>
     </div>
   );
