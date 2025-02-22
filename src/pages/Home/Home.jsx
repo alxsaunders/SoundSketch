@@ -31,7 +31,7 @@ const Home = () => {
   const cardStyle = {
     backgroundColor: 'rgba(32, 32, 32, 0.95)', // Dark background with transparency
     borderRadius: '12px',
-    border: '2px solid rgba(255, 48, 48, 1)', // Red outline matching our theme color
+    border: '2px solid rgba(255, 48, 48, 1)', 
     padding: '20px',
     height: '100%',
     minHeight: '500px',
