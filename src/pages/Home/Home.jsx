@@ -36,7 +36,7 @@ const Home = () => {
     height: '100%',
     minHeight: '500px',
     textAlign: 'center',
-    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2), 0 0 15px rgba(255, 48, 48, 0.3)', // Added red glow
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2), 0 0 15px rgba(255, 48, 48, 0.3)', 
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center'
