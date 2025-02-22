@@ -2,6 +2,8 @@
 .navbar {
     background-color: #FF3030;
     width: 100%;
+    height: 20%;
+
   }
   
   .navbar-container {
@@ -11,7 +13,7 @@
     justify-content: space-between;
     align-items: center;
     height: 64px;
-    padding: 0 24px; /* Add consistent padding on sides */
+  
   }
   
   .navbar-logo {
