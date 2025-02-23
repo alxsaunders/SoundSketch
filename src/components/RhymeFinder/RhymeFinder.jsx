@@ -9,7 +9,7 @@ const RhymeFinder = () => {
   const [generatingLyrics, setGeneratingLyrics] = useState(false);
   const [error, setError] = useState('');
 
-  // Styling to match the Music Tools Hub theme
+  // Styling to match the Music Tools Hub theme.
   const containerStyle = {
     width: '100%',
     display: 'flex',
