@@ -14,6 +14,7 @@ const StickyNote = () => {
   const [isEditing, setIsEditing] = useState(false);
   const noteRef = useRef(null);
   const textareaRef = useRef(null);
+  
 
   // Update position when window is resized
   useEffect(() => {
