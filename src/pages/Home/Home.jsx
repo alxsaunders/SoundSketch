@@ -2,6 +2,7 @@ import React from 'react';
 import Youtube2Mp3 from '@/components/Youtube2Mp3/Youtube2Mp3.jsx';
 import SongKeyAnalyzer from '@/components/SongKeyAnalyzer/SongKeyAnalyzer';
 import RhymeFinder from '@/components/RhymeFinder/RhymeFinder';
+import StickyNote from '@/components/StickyNote/StickyNote';
 
 const Home = () => {
   // Container style with background image and blur effect
@@ -174,6 +175,7 @@ const Home = () => {
           </div>
         </div>
       </div>
+      <StickyNote />
       <h1 style={footer} className="main-header">
         Sound Sketch
       </h1>
