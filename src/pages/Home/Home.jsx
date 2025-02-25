@@ -105,11 +105,12 @@ const Home = () => {
     letterSpacing: '2px',
     fontSize: '30px',
     textAlign: 'center',
-    marginTop: '200px',
+    marginTop: '5vh',
     fontWeight: '300',
     position: 'relative',
     zIndex: 1
   };
+  
 
   return (
     <div style={containerStyle}>
