@@ -106,7 +106,6 @@ const Home = () => {
     fontSize: '30px',
     textAlign: 'center',
     marginTop: '5vh',
-    fontWeight: '300',
     position: 'relative',
     zIndex: 1
   };

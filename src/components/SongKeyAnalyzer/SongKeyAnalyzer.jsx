@@ -6,6 +6,7 @@ const SongKeyAnalyzer = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
+  const [isDragOver, setIsDragOver] = useState(false); // Added for drag feedback
   const fileInputRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -30,13 +31,14 @@ const SongKeyAnalyzer = () => {
     justifyContent: 'center',
     width: '100%',
     height: '150px',
-    border: '2px dashed rgba(255, 255, 255, 0.5)',
+    border: `2px dashed ${isDragOver ? 'rgba(255, 255, 255, 0.8)' : 'rgba(255, 255, 255, 0.5)'}`, // Dynamic border
     borderRadius: '12px',
     cursor: 'pointer',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    transition: 'background-color 0.2s',
+    backgroundColor: isDragOver ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)', // Dynamic background
+    transition: 'all 0.2s ease',
     padding: '15px',
-    marginBottom: '15px'
+    marginBottom: '15px',
+    boxSizing: 'border-box'
   };
 
   const uploadTextStyle = {
@@ -66,7 +68,8 @@ const SongKeyAnalyzer = () => {
     alignItems: 'center',
     justifyContent: 'center',
     transition: 'background-color 0.2s',
-    margin: '15px 0'
+    margin: '15px 0',
+    boxSizing: 'border-box'
   };
 
   const disabledButtonStyle = {
@@ -84,7 +87,8 @@ const SongKeyAnalyzer = () => {
     padding: '8px 12px',
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: '8px',
-    marginTop: '10px'
+    marginTop: '10px',
+    boxSizing: 'border-box'
   };
 
   const errorStyle = {
@@ -95,7 +99,8 @@ const SongKeyAnalyzer = () => {
     borderRadius: '8px',
     color: 'white',
     fontSize: '14px',
-    marginTop: '10px'
+    marginTop: '10px',
+    boxSizing: 'border-box'
   };
 
   const resultContainerStyle = {
@@ -103,7 +108,8 @@ const SongKeyAnalyzer = () => {
     padding: '20px',
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: '12px',
-    marginTop: '20px'
+    marginTop: '20px',
+    boxSizing: 'border-box'
   };
 
   const resultHeaderStyle = {
@@ -134,7 +140,8 @@ const SongKeyAnalyzer = () => {
     marginTop: '20px',
     backgroundColor: 'rgba(0, 0, 0, 0.1)',
     borderRadius: '8px',
-    padding: '10px'
+    padding: '10px',
+    boxSizing: 'border-box'
   };
 
   const correlationListStyle = {
@@ -144,14 +151,51 @@ const SongKeyAnalyzer = () => {
     marginTop: '15px'
   };
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
+  // Handle file selection (both click and drag)
+  const handleFileSelection = (file) => {
     if (file && file.type.startsWith('audio/')) {
       setAudioFile(file);
       setError(null);
       setResult(null);
     } else if (file) {
-      setError('Please select a valid audio file');
+      setError('Please select a valid audio file (MP3, WAV, OGG, etc.)');
+    }
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    handleFileSelection(file);
+  };
+
+  // Drag and drop handlers
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Only set drag over to false if we're leaving the upload area entirely
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      setIsDragOver(false);
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFileSelection(files[0]);
     }
   };
 
@@ -228,10 +272,19 @@ const SongKeyAnalyzer = () => {
   return (
     <div style={containerStyle}>
       <div style={sectionStyle}>
-        <label style={uploadLabelStyle} onClick={() => fileInputRef.current.click()}>
+        <label 
+          style={uploadLabelStyle} 
+          onClick={() => fileInputRef.current.click()}
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+        >
           <Upload style={{ color: 'white', marginBottom: '10px' }} size={30} />
           <p style={uploadTextStyle}>
-            <span style={{ fontWeight: 'bold' }}>Click to upload</span> or drag and drop
+            <span style={{ fontWeight: 'bold' }}>
+              {isDragOver ? 'Drop your audio file here' : 'Click to upload or drag and drop'}
+            </span>
           </p>
           <p style={uploadSubTextStyle}>WAV, MP3, or OGG files (max 10MB)</p>
           <input

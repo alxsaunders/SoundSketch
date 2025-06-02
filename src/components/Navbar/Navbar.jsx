@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { UserCircle, Info } from 'lucide-react';
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -54,33 +53,13 @@ const Navbar = () => {
     fontFamily: "'TopFont', sans-serif"
   };
 
-  const iconsContainerStyle = {
-    display: 'flex',
-    gap: '20px',
-    alignItems: 'center',
-    fontFamily: 'Poppins, sans-serif'
-  };
-
-  const iconStyle = {
+  const rightTextStyle = {
     color: 'white',
+    fontSize: '16px',
+    fontWeight: '300',
     opacity: 0.9,
-    transition: 'all 0.2s ease',
-    padding: '8px',
-    borderRadius: '50%',
-    background: 'rgba(255, 255, 255, 0.1)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    letterSpacing: '0.5px',
     fontFamily: 'Poppins, sans-serif'
-  };
-
-  const hoverStyle = {
-    ':hover': {
-      opacity: 1,
-      transform: 'translateY(-2px)',
-      background: 'rgba(255, 48, 48, 0.2)',
-      boxShadow: '0 4px 12px rgba(255, 48, 48, 0.2)'
-    }
   };
 
   return (
@@ -104,38 +83,14 @@ const Navbar = () => {
           .nav-container {
             font-family: 'Poppins', sans-serif;
           }
-          
-          .nav-icon {
-            transition: all 0.2s ease;
-            font-family: 'Poppins', sans-serif;
-          }
-          .nav-icon:hover {
-            opacity: 1;
-            transform: translateY(-2px);
-            background: rgba(255, 48, 48, 0.2);
-            box-shadow: 0 4px 12px rgba(255, 48, 48, 0.2);
-          }
         `}
       </style>
       <div style={containerStyle} className="nav-container">
         <Link to="/" style={logoStyle}>
           Sound Sketch
         </Link>
-        <div style={iconsContainerStyle}>
-          <Link 
-            to="/profile" 
-            style={iconStyle}
-            className="nav-icon"
-          >
-            <UserCircle size={24} />
-          </Link>
-          <Link 
-            to="/info" 
-            style={iconStyle}
-            className="nav-icon"
-          >
-            <Info size={24} />
-          </Link>
+        <div style={rightTextStyle}>
+          Your Music Hub
         </div>
       </div>
     </nav>

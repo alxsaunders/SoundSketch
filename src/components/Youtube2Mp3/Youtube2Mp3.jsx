@@ -4,7 +4,9 @@ import axios from "axios";
 const Youtube2Mp3 = () => {
   const [youtubeUrl, setYoutubeUrl] = useState("");
   const [downloadLink, setDownloadLink] = useState(null);
+  const [videoTitle, setVideoTitle] = useState("");
   const [loading, setLoading] = useState(false);
+  const [fetchingTitle, setFetchingTitle] = useState(false);
   const [error, setError] = useState("");
 
   // Styles to match the Music Tools Hub theme
@@ -19,22 +21,25 @@ const Youtube2Mp3 = () => {
   const inputGroupStyle = {
     width: '100%',
     display: 'flex',
+    flexDirection: 'column',
     gap: '10px',
     marginBottom: '15px'
   };
 
   const inputStyle = {
-    flex: 1,
+    width: '100%',
     padding: '12px 15px',
     borderRadius: '8px',
     border: '1px solid rgba(0, 0, 0, 0.1)',
     backgroundColor: 'white',
     color: '#555',
     fontSize: '16px',
-    fontWeight: '400'
+    fontWeight: '400',
+    boxSizing: 'border-box'
   };
 
   const buttonStyle = {
+    width: '100%',
     padding: '12px 24px',
     borderRadius: '8px',
     border: 'none',
@@ -43,8 +48,17 @@ const Youtube2Mp3 = () => {
     cursor: 'pointer',
     fontWeight: 'bold',
     fontSize: '16px',
-    minWidth: '140px',
-    transition: 'background-color 0.2s'
+    minHeight: '48px',
+    transition: 'background-color 0.2s',
+    boxSizing: 'border-box',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  };
+
+  const primaryButtonStyle = {
+    ...buttonStyle,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)'
   };
 
   const disabledButtonStyle = {
@@ -61,7 +75,8 @@ const Youtube2Mp3 = () => {
     backgroundColor: 'rgba(255, 0, 0, 0.15)',
     borderRadius: '6px',
     width: '100%',
-    textAlign: 'center'
+    textAlign: 'center',
+    boxSizing: 'border-box'
   };
 
   const loadingStyle = {
@@ -78,7 +93,8 @@ const Youtube2Mp3 = () => {
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: '8px',
     textAlign: 'center',
-    width: '100%'
+    width: '100%',
+    boxSizing: 'border-box'
   };
 
   const downloadLinkStyle = {
@@ -93,6 +109,83 @@ const Youtube2Mp3 = () => {
     transition: 'background-color 0.2s'
   };
 
+  const videoTitleStyle = {
+    color: 'white',
+    fontSize: '14px',
+    margin: '10px 0',
+    padding: '12px',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: '8px',
+    fontStyle: 'italic',
+    textAlign: 'center',
+    wordBreak: 'break-word'
+  };
+
+  const spinnerStyle = {
+    width: '20px',
+    height: '20px',
+    border: '3px solid rgba(255, 255, 255, 0.3)',
+    borderTop: '3px solid white',
+    borderRadius: '50%',
+    animation: 'spin 1s linear infinite',
+    marginRight: '10px'
+  };
+
+  // Helper function to clean title for display and download
+  const cleanTitleForDisplay = (title) => {
+    return title.replace(/🎵/g, '').trim(); // Remove music emoji but keep other characters for display
+  };
+
+  const cleanTitleForDownload = (title) => {
+    return title
+      .replace(/[🎵🎶🎤🎧🔥💯👑]/g, '') // Remove emojis
+      .replace(/[\/\\?%*:|"<>]/g, '') // Remove invalid filename characters
+      .replace(/["'"]/g, '') // Remove quotes
+      .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+      .trim(); // Remove leading/trailing spaces
+  };
+
+  // Extract video ID from YouTube URL
+  const extractVideoId = (url) => {
+    const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+  };
+
+  // Get title using YouTube oEmbed API (no API key required)
+  const getTitleFromOEmbed = async (videoId) => {
+    try {
+      const response = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`);
+      if (response.ok) {
+        const data = await response.json();
+        return data.title;
+      }
+    } catch (error) {
+      console.error('oEmbed failed:', error);
+    }
+    return null;
+  };
+
+  // Backup method: scrape page title
+  const getTitleFromPage = async (url) => {
+    try {
+      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+      const response = await fetch(proxyUrl);
+      const data = await response.json();
+      
+      if (data.contents) {
+        const titleMatch = data.contents.match(/<title[^>]*>([^<]+)<\/title>/i);
+        if (titleMatch && titleMatch[1]) {
+          return titleMatch[1].replace(' - YouTube', '').trim();
+        }
+      }
+    } catch (error) {
+      console.error('Page scraping failed:', error);
+    }
+    return null;
+  };
+
+  // Convert to MP3 with automatic title fetching
   const handleConvert = async () => {
     if (!youtubeUrl.trim()) {
       setError("Please provide a valid YouTube URL.");
@@ -100,8 +193,36 @@ const Youtube2Mp3 = () => {
     }
 
     setError("");
-    setLoading(true);
     setDownloadLink(null);
+
+    // First, try to get the title
+    if (!videoTitle) {
+      setFetchingTitle(true);
+      const videoId = extractVideoId(youtubeUrl);
+      
+      if (videoId) {
+        try {
+          // Try oEmbed first
+          let title = await getTitleFromOEmbed(videoId);
+          
+          // If oEmbed fails, try page scraping
+          if (!title) {
+            title = await getTitleFromPage(youtubeUrl);
+          }
+
+          if (title) {
+            setVideoTitle(title);
+          }
+        } catch (err) {
+          console.error('Error fetching title:', err);
+          // Continue with conversion even if title fetch fails
+        }
+      }
+      setFetchingTitle(false);
+    }
+
+    // Then proceed with conversion
+    setLoading(true);
 
     try {
       console.log('Sending request to backend with URL:', youtubeUrl);
@@ -112,6 +233,10 @@ const Youtube2Mp3 = () => {
       
       if (response.data.success && response.data.downloadPath) {
         setDownloadLink(response.data.downloadPath);
+        // Update title if we got one from the backend and don't have one already
+        if (response.data.title && response.data.title !== "Unknown Title" && !videoTitle) {
+          setVideoTitle(response.data.title);
+        }
       } else {
         setError("Conversion failed. Please try again.");
       }
@@ -123,6 +248,16 @@ const Youtube2Mp3 = () => {
     }
   };
 
+  const handleUrlChange = (e) => {
+    setYoutubeUrl(e.target.value);
+    // Clear previous results when URL changes
+    if (videoTitle || downloadLink) {
+      setVideoTitle("");
+      setDownloadLink(null);
+      setError("");
+    }
+  };
+
   return (
     <div style={containerStyle}>
       <div style={inputGroupStyle}>
@@ -130,15 +265,28 @@ const Youtube2Mp3 = () => {
           type="text"
           placeholder="Enter YouTube URL..."
           value={youtubeUrl}
-          onChange={(e) => setYoutubeUrl(e.target.value)}
+          onChange={handleUrlChange}
           style={inputStyle}
         />
+        
         <button
           onClick={handleConvert}
-          disabled={loading}
-          style={loading ? disabledButtonStyle : buttonStyle}
+          disabled={loading || fetchingTitle || !youtubeUrl.trim()}
+          style={loading || fetchingTitle || !youtubeUrl.trim() ? disabledButtonStyle : primaryButtonStyle}
         >
-          {loading ? "Converting..." : "Convert"}
+          {fetchingTitle ? (
+            <>
+              <div style={spinnerStyle}></div>
+              Getting Title...
+            </>
+          ) : loading ? (
+            <>
+              <div style={spinnerStyle}></div>
+              Converting...
+            </>
+          ) : (
+            "Convert to MP3"
+          )}
         </button>
       </div>
       
@@ -146,16 +294,14 @@ const Youtube2Mp3 = () => {
       
       {loading && (
         <div style={loadingStyle}>
-          <div style={{
-            width: '20px',
-            height: '20px',
-            border: '3px solid rgba(255, 255, 255, 0.3)',
-            borderTop: '3px solid white',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            marginRight: '10px'
-          }}></div>
+          <div style={spinnerStyle}></div>
           Converting video to MP3...
+        </div>
+      )}
+      
+      {videoTitle && (
+        <div style={videoTitleStyle}>
+          🎵 "{cleanTitleForDisplay(videoTitle)}"
         </div>
       )}
       
@@ -165,7 +311,7 @@ const Youtube2Mp3 = () => {
           <a 
             href={downloadLink}
             style={downloadLinkStyle}
-            download
+            download={videoTitle ? `${cleanTitleForDownload(videoTitle)}.mp3` : undefined}
           >
             Download MP3
           </a>

@@ -1,6 +1,5 @@
 const express = require('express');
 const youtubedl = require('youtube-dl-exec');
-const ffmpeg = require('fluent-ffmpeg');
 const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
@@ -17,6 +16,18 @@ if (!fs.existsSync(downloadsDir)) {
     console.log('Created downloads directory at:', downloadsDir);
 }
 
+// Function to sanitize filename
+function sanitizeFilename(filename) {
+    return filename
+        .replace(/[\/\\?%*:|"<>]/g, '') // Remove invalid characters
+        .replace(/[🎵🎶🎤🎧🔥💯👑]/g, '') // Remove emojis
+        .replace(/["'"]/g, '') // Remove quotes
+        .replace(/\s+/g, '_') // Replace spaces with underscores
+        .replace(/_{2,}/g, '_') // Replace multiple underscores with single
+        .replace(/^_|_$/g, '') // Remove leading/trailing underscores
+        .substring(0, 80); // Limit length
+}
+
 app.post('/convert', async (req, res) => {
     console.log('Received request body:', req.body);
     const { url } = req.body;
@@ -29,10 +40,22 @@ app.post('/convert', async (req, res) => {
     try {
         console.log('Getting video info for:', url);
         
-        // Generate a unique filename
-        const timestamp = Date.now();
-        const outputPath = path.join(downloadsDir, `audio_${timestamp}.mp3`);
+        // First, get video information to extract title
+        const info = await youtubedl(url, {
+            dumpSingleJson: true,
+            noDownload: true,
+            noWarnings: true
+        });
 
+        console.log('Video title:', info.title);
+        
+        // Generate filename using title
+        const timestamp = Date.now();
+        const sanitizedTitle = sanitizeFilename(info.title || 'unknown_video');
+        const filename = `${sanitizedTitle}_${timestamp}.mp3`;
+        const outputPath = path.join(downloadsDir, filename);
+
+        // Download and convert to MP3
         await youtubedl(url, {
             extractAudio: true,
             audioFormat: 'mp3',
@@ -43,7 +66,9 @@ app.post('/convert', async (req, res) => {
         
         res.json({
             success: true,
-            downloadPath: `http://localhost:3001/download/audio_${timestamp}.mp3`
+            downloadPath: `http://localhost:3001/download/${filename}`,
+            title: info.title, // Send original title to frontend
+            filename: filename
         });
 
     } catch (error) {
@@ -58,7 +83,20 @@ app.get('/download/:filename', (req, res) => {
     console.log('Download requested for:', filePath);
 
     if (fs.existsSync(filePath)) {
-        res.download(filePath, filename, (err) => {
+        // Create a cleaner download name (remove timestamp and clean up)
+        const cleanName = filename
+            .replace(/_\d+\.mp3$/, '.mp3') // Remove timestamp
+            .replace(/_/g, ' ') // Replace underscores with spaces
+            .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+            .trim(); // Remove leading/trailing spaces
+        
+        console.log('Download filename:', cleanName);
+        
+        // Set proper headers for download
+        res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(cleanName)}`);
+        res.setHeader('Content-Type', 'audio/mpeg');
+        
+        res.download(filePath, cleanName, (err) => {
             if (err) {
                 console.error('Error sending file:', err);
                 if (!res.headersSent) {
@@ -68,6 +106,7 @@ app.get('/download/:filename', (req, res) => {
             // Delete file after download
             fs.unlink(filePath, (err) => {
                 if (err) console.error('Error deleting file:', err);
+                else console.log('File deleted after download:', filePath);
             });
         });
     } else {

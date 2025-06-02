@@ -3,8 +3,8 @@ import React, { useState, useRef, useEffect } from 'react';
 const StickyNote = () => {
   // Calculate initial position based on window size
   const calculateInitialPosition = () => ({
-    x: window.innerWidth - 620, // Account for note width + padding
-    y: window.innerHeight - 550 // Account for note height + padding
+    x: window.innerWidth - 320, // Account for note width + padding
+    y: window.innerHeight - 300 // Account for note height + padding
   });
 
   const [position, setPosition] = useState(calculateInitialPosition());
@@ -40,8 +40,8 @@ const StickyNote = () => {
 
   const handleMouseMove = (e) => {
     if (isDragging) {
-      const newX = Math.min(Math.max(0, e.clientX - dragOffset.x), window.innerWidth - 500);
-      const newY = Math.min(Math.max(0, e.clientY - dragOffset.y), window.innerHeight - 500);
+      const newX = Math.min(Math.max(0, e.clientX - dragOffset.x), window.innerWidth - 250);
+      const newY = Math.min(Math.max(0, e.clientY - dragOffset.y), window.innerHeight - 250);
       
       setPosition({
         x: newX,
@@ -75,9 +75,9 @@ const StickyNote = () => {
     position: 'fixed',
     left: `${position.x}px`,
     top: `${position.y}px`,
-    width: '500px',
-    minHeight: '500px',
-    padding: '20px',
+    width: '250px',
+    minHeight: '250px',
+    padding: '10px',
     background: 'linear-gradient(135deg, #ffd86b, #ffc53d)',
     boxShadow: isDragging 
       ? '0 10px 20px rgba(0,0,0,0.3)'
@@ -88,15 +88,15 @@ const StickyNote = () => {
     transition: isDragging ? 'none' : 'all 0.3s ease',
     zIndex: 1000,
     fontFamily: 'Poppins, sans-serif',
-    fontSize: '24px',
+    fontSize: '16px',
     lineHeight: '1.5',
     color: '#2c2c2c'
   };
 
   const headerStyle = {
     width: '100%',
-    height: '20px',
-    marginBottom: '10px',
+    height: '10px',
+    marginBottom: '5px',
     cursor: isDragging ? 'grabbing' : 'grab',
     backgroundColor: 'rgba(0,0,0,0.05)',
     borderRadius: '2px'
@@ -104,12 +104,12 @@ const StickyNote = () => {
 
   const textareaStyle = {
     width: '100%',
-    minHeight: '450px', // Increased to match note size
+    minHeight: '225px', // Increased to match note size
     background: 'transparent',
     border: 'none',
     resize: 'none',
     fontFamily: 'Poppins, sans-serif',
-    fontSize: '24px',
+    fontSize: '16px',
     lineHeight: '1.5',
     color: '#2c2c2c',
     cursor: 'text',
@@ -149,7 +149,7 @@ const StickyNote = () => {
         <div style={{ 
           whiteSpace: 'pre-wrap', 
           cursor: 'text',
-          minHeight: '450px' // Match textarea height
+          minHeight: '225px' // Match textarea height
         }}>
           {text}
         </div>
